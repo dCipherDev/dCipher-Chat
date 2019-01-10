@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">dCipher Chat!</string>
+
+    <string name="back4app_server_url">https://parseapi.back4app.com/</string>
+
+    <!-- Change the following strings as required -->
+    <string name="back4app_app_id">CEi4ravMcKYMKlJDaPIKeaUkvyPOtkazFotZjVM1</string>
+    <string name="back4app_client_key">kxi6Gx24jkcMruPuHESIOUiY1dYlctEPIY6PC0AB</string>
+
+</resources>
