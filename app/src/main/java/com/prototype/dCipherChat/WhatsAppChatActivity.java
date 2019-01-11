@@ -1,9 +1,18 @@
 package com.prototype.dCipherChat;
 
+import android.app.Notification;
+import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -21,18 +30,21 @@ import java.util.List;
 
 public class WhatsAppChatActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private NotificationUtils mNotificationUtils;
     private ListView chatListView;
     private ArrayList<String> chatsList;
     private ArrayAdapter adapter;
     private String selectedUser;
+    private static final String TAG = "WhatsAppChatActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_whats_app_chat);
 
+        mNotificationUtils = new NotificationUtils(this);
+
         selectedUser = getIntent().getStringExtra("selectedUser");
-        FancyToast.makeText(this, "Chat with " + selectedUser + " Now!!!", Toast.LENGTH_SHORT, FancyToast.INFO, true).show();
 
         findViewById(R.id.btnSend).setOnClickListener(this);
 
@@ -69,19 +81,34 @@ public class WhatsAppChatActivity extends AppCompatActivity implements View.OnCl
                             String waMessage = chatObject.get("waMessage") + "";
 
                             if (chatObject.get("waSender").equals(ParseUser.getCurrentUser().getUsername())) {
-
                                 waMessage = ParseUser.getCurrentUser().getUsername() + ": " + waMessage;
                             }
+
                             if (chatObject.get("waSender").equals(selectedUser)) {
-
                                 waMessage = selectedUser + ": " + waMessage;
-                            }
+//                                FancyToast.makeText(WhatsAppChatActivity.this, "You've received a new messages from " + selectedUser + waMessage, Toast.LENGTH_SHORT, FancyToast.SUCCESS, true).show();
 
+                                final String waMessageReceive = chatObject.get("waMessage") + "";
+
+                                Button buttonAndroid = (Button) findViewById(R.id.refreshListChat);
+
+                                buttonAndroid.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+
+                                        if(!TextUtils.isEmpty(selectedUser) && !TextUtils.isEmpty(waMessageReceive)) {
+                                            NotificationCompat.Builder nb = mNotificationUtils.
+                                                    getAndroidChannelNotification(selectedUser, "Message: " + waMessageReceive);
+
+                                            mNotificationUtils.getManager().notify(101, nb.build());
+                                        }
+                                    }
+                                });
+                            }
                             chatsList.add(waMessage);
                         }
                         adapter.notifyDataSetChanged();
-
-
+                        scrollMyListViewToBottom();
                     }
                 }
             });
@@ -105,13 +132,45 @@ public class WhatsAppChatActivity extends AppCompatActivity implements View.OnCl
             public void done(ParseException e) {
                 if (e == null) {
 
-                    FancyToast.makeText(WhatsAppChatActivity.this, "Message from " + ParseUser.getCurrentUser().getUsername() + " sent to " + selectedUser, Toast.LENGTH_SHORT, FancyToast.SUCCESS, true).show();
+//                    FancyToast.makeText(WhatsAppChatActivity.this, "Message from " + ParseUser.getCurrentUser().getUsername() + " sent to " + selectedUser, Toast.LENGTH_SHORT, FancyToast.SUCCESS, true).show();
                     chatsList.add(ParseUser.getCurrentUser().getUsername() + ": " + edtMessage.getText().toString());
                     adapter.notifyDataSetChanged();
                     edtMessage.setText("");
+                    scrollMyListViewToBottom();
                 }
             }
         });
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.my_menu_refresh, menu);
+        return super.onCreateOptionsMenu(menu);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.refresh_chat:
+                finish();
+                startActivity(getIntent());
+                FancyToast.makeText(WhatsAppChatActivity.this, "Refreshing chat", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void scrollMyListViewToBottom() {
+        chatListView.post(new Runnable() {
+            @Override
+            public void run() {
+                chatListView.setSelection(adapter.getCount() - 1);
+            }
+        });
     }
 }

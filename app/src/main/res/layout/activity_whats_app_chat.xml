@@ -7,11 +7,18 @@
     tools:context="com.prototype.dCipherChat.WhatsAppChatActivity"
     android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/chatListView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="80" />
+    <!--<android.support.v4.widget.SwipeRefreshLayout-->
+        <!--android:id="@+id/swipeContainer"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
+
+        <ListView
+            android:id="@+id/chatListView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="80" />
+
+    <!--</android.support.v4.widget.SwipeRefreshLayout>-->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,6 +36,15 @@
             android:inputType="textPersonName" />
 
         <Button
+            android:id="@+id/refreshListChat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/colorAccent"
+            android:text="Get Notification"
+            android:textColor="@color/colorPrimary" />
+
+        <Button
             android:id="@+id/btnSend"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -36,6 +52,7 @@
             android:background="@color/colorPrimary"
             android:text="Send Message"
             android:textColor="@color/colorAccent" />
+
     </LinearLayout>
 
 </LinearLayout>
